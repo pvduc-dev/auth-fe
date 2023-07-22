@@ -1,18 +1,48 @@
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
-import {darkTheme } from 'naive-ui';
-import {zhCN, dateZhCN} from 'naive-ui';
+import {darkTheme, dateZhCN, FormInst, FormRules, zhCN} from 'naive-ui';
 
 export default defineComponent({
   setup() {
+    const rules: FormRules = {
+      email: [
+        {
+          required: true,
+          message: 'E-mail must be not empty',
+          trigger: ['blur', 'input']
+        },
+        {
+          pattern: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+          message: 'E-mail must be valid',
+          trigger: ['blur', 'input']
+        }
+      ],
+      password: [
+        {
+          required: true,
+          message: 'Password is required',
+          trigger: ['blur', 'input']
+        },
+      ],
+    }
+    const formRef = ref<FormInst | null>(null);
+    const formValue = ref({
+      email: '',
+      password: '',
+    });
     return {
       darkTheme: darkTheme,
       zhCN,
       dateZhCN,
-      formValue: ref({
-        email: 'pvduc.dev@gmail.com',
-        password: '',
-      }),
+      formValue,
+      formRef,
+      rules,
+      async submit() {
+        try {
+          await formRef.value?.validate()
+        } catch (e) {
+        }
+      }
     }
   }
 })
@@ -23,45 +53,56 @@ export default defineComponent({
     :theme="darkTheme"
     :locale="zhCN"
     :date-locale="dateZhCN"
-    style="height: 100vh; width: 100%; display: flex; justify-content: center; align-items: center;background-image: url('/bg.svg'); background-repeat: no-repeat;background-size: cover;background-position: center center;"
+    class="h-screen w-full flex justify-center items-center bg-no-repeat bg-cover bg-center"
+    style="background-image: url('/bg.svg');"
   >
     <n-global-style/>
     <n-card
       size="huge"
-      title="Sign in with Pv Duc account"
-
-      style="max-width: 420px"
+      title="Sign in with your account"
+      class="max-w-md"
     >
       <n-form
+        size="large"
         :model="formValue"
-        @submit.prevent=""
+        :rules="rules"
+        ref="formRef"
+        @submit.prevent="submit"
       >
-        <n-form-item
-          path="email"
-          label="Email"
-        >
-          <n-input
-            type="text"
-            show-password-on="mousedown"
-            placeholder="Email"
-            v-model:value="formValue.email"
-          />
-        </n-form-item>
-        <n-form-item
-          path="password"
-          label="Password"
-        >
-          <n-input
-            type="password"
-            show-password-on="mousedown"
-            placeholder="Password"
-            v-model:value="formValue.password"
-          />
-        </n-form-item>
         <n-row>
           <n-col
             :span="24"
-            style="display: flex; justify-content: end; margin-bottom: 8px"
+          >
+            <n-form-item
+              path="email"
+              label="Email"
+            >
+              <n-input
+                type="text"
+                show-password-on="mousedown"
+                placeholder="Email"
+                v-model:value="formValue.email"
+              />
+            </n-form-item>
+          </n-col>
+          <n-col
+            :span="24"
+          >
+            <n-form-item
+              path="password"
+              label="Password"
+            >
+              <n-input
+                type="password"
+                show-password-on="click"
+                placeholder="Password"
+                v-model:value="formValue.password"
+              />
+            </n-form-item>
+          </n-col>
+          <n-col
+            :span="24"
+            class="flex justify-end mb-2"
           >
             <n-text
               type="info"
@@ -74,6 +115,8 @@ export default defineComponent({
             <n-button
               block
               type="primary"
+              size="large"
+              attr-type="submit"
             >
               Sign in
             </n-button>
@@ -83,27 +126,27 @@ export default defineComponent({
             :span="24">
             <n-button
               block
-              ghost
+              size="large"
               type="warning"
-              attr-type="submit"
+              attr-type="button"
             >
               Sign in with Google
             </n-button>
           </n-col>
           <n-col
             :span="24"
-            style="margin-top: 12px"
+            class="mt-3"
           >
             <n-text>Don't you have an account?</n-text>
-            <router-link to="/sign-up">
-              <n-text style="margin-left: 4px" type="info">Sign up</n-text>
-            </router-link>
+              <n-text
+                class="ml-0.5 font-medium"
+                type="info"
+              >
+                Sign up
+              </n-text>
           </n-col>
         </n-row>
       </n-form>
     </n-card>
   </n-config-provider>
 </template>
-
-<style>
-</style>
